@@ -1,38 +1,21 @@
 import { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
+import { gameConfig } from './game/GameConfig';
 
-function GameContainer() {
+export default function App() {
   const containerRef = useRef(null);
   const gameRef = useRef(null);
 
   useEffect(() => {
-    // Configuración base de Phaser
     const config = {
-      type: Phaser.AUTO,
-      width: 800,
-      height: 600,
-      parent: containerRef.current, // Aquí se inyecta en React
-      physics: {
-        default: 'arcade',
-        arcade: { gravity: { y: 300 } }
-      },
-      scene: {
-        preload: function() {},
-        create: function() {
-          this.add.text(100, 100, '¡Phaser + React Corriendo Limpio!', { 
-            fill: '#00ff00', 
-            fontSize: '32px' 
-          });
-        }
-      }
+      ...gameConfig,
+      parent: containerRef.current
     };
 
-    
     if (!gameRef.current) {
       gameRef.current = new Phaser.Game(config);
     }
 
-    
     return () => {
       if (gameRef.current) {
         gameRef.current.destroy(true);
@@ -42,13 +25,10 @@ function GameContainer() {
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#242424', color: 'white' }}>
-      <h2>Bubble Bobble - UNEFA Edition 🦖</h2>
-      <div ref={containerRef} style={{ border: '4px solid #4caf50', borderRadius: '8px', overflow: 'hidden' }} />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#242424', color: 'white', fontFamily: 'sans-serif' }}>
+      <h1 style={{ marginBottom: '10px' }}>Bubble Bobble - UNEFA 🦖</h1>
+      <p style={{ margin: '0 0 20px 0', color: '#aaa' }}>Usa las flechas del teclado para moverte y saltar</p>
+      <div ref={containerRef} style={{ border: '4px solid #4caf50', borderRadius: '8px', overflow: 'hidden', boxShadow: '0px 10px 20px rgba(0,0,0,0.5)' }} />
     </div>
   );
-}
-
-export default function App() {
-  return <GameContainer />;
 }
