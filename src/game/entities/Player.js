@@ -81,14 +81,23 @@ move(cursors) {
         const bubbleX = this.x + (this.direction * 22);
         const bubbleY = this.y - 8;
 
-        new Bubble(
-            this.scene,
-            bubbleX,
-            bubbleY,
-            this.direction
+        const bubble = new Bubble(
+          this.scene,
+          bubbleX,
+          bubbleY,
+          this.direction
         );
+        
+        console.log("DIRECCION PLAYER:", this.direction);
+        
+        this.scene.bubbles.add(bubble);
 
-    });
+        bubble.body.allowGravity = false;
+        bubble.body.setVelocityX(this.direction * bubble.speed);
+
+        console.log("burbuja agregada");
+
+        });
 
     this.once('animationcomplete-attack', () => {
 
