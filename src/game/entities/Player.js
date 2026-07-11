@@ -15,7 +15,7 @@ export class Player extends Entity {
 
   this.play('idle');
 
-  this.setSize(32, 42);
+  this.setSize(24, 24);
 }
 
 
