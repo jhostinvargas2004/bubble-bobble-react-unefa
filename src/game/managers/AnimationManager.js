@@ -63,6 +63,27 @@ export class AnimationManager {
             repeat: -1
         });
 
+        // Giant Fly Idle
+
+scene.anims.create({
+
+    key:'fly_idle',
+
+    frames: scene.anims.generateFrameNumbers(
+        'fly_idle',
+        {
+            start:0,
+            end:3
+        }
+    ),
+
+    frameRate:8,
+
+    repeat:-1
+
+});
+
     }
+
 
 }

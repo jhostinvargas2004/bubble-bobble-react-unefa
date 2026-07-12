@@ -24,7 +24,7 @@ export class Enemy extends Entity {
         // Estado inicial
         this.state = 'NORMAL';
         this.trappedBubble = null;
-        this.play('rat_idle');
+        this.play(config.idle);
         this.setScale(config.scale);
         this.body.setSize(config.body.width, config.body.height);
         this.body.setOffset(config.body.offsetX, config.body.offsetY);
@@ -43,7 +43,7 @@ export class Enemy extends Entity {
 
                 this.speed = 40;
 
-                this.play('rat_idle', true);
+                this.play(EnemyConfig[this.type].idle, true);
 
                 break;
 
@@ -59,7 +59,7 @@ case 'ANGRY':
 
 
     // volver tamaño normal
-    this.setScale(1.8);
+    this.setScale(1.2);
 
 
     // despertar el cuerpo físico
@@ -69,8 +69,10 @@ case 'ANGRY':
     // impulso para caer
     this.setVelocityY(-150);
 
-
-    this.play('rat_angry', true);
+    this.play(
+    EnemyConfig[this.type].angry,
+    true
+);
 
 
 break;
@@ -194,19 +196,14 @@ break;
     }
 
 
-   updateTrapped(){
+   updateTrapped() {
+    if (!this.trappedBubble) return;
 
-    if (!this.trappedBubble) {
-
-        return;
-
-    }
-
+    // Leer dinámicamente la configuración del tipo de enemigo actual
+    const config = EnemyConfig[this.type];
+    const offsetY = config.bubbleOffsetY || 0; // Si no existe, por defecto es 0
 
     this.x = this.trappedBubble.x;
-
-    this.y = this.trappedBubble.y -11;
-
+    this.y = this.trappedBubble.y + offsetY; 
 }
-
 }

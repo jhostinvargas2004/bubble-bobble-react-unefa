@@ -104,6 +104,15 @@ export class AssetLoader {
             'strawberry',
             'assets/sprites/fruits/red strawberry.png'
         );
+
+scene.load.spritesheet(
+    'fly_idle',
+    'assets/sprites/enemy/Giant Fly Sprite Sheet.png',
+    {
+        frameWidth:32,
+        frameHeight:32
+    }
+);
     }
 
 }
