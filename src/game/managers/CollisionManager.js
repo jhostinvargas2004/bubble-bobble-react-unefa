@@ -44,7 +44,7 @@ export class CollisionManager {
 
                     console.log("BURBUJA CON ENEMIGO");
 
-                    bubble.pop();
+                    bubble.explodeByPlayer();
 
                 }
 

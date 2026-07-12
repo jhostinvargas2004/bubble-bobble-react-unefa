@@ -19,6 +19,7 @@ export class Bubble extends Phaser.Physics.Arcade.Sprite {
 
     this.state = 'PROJECTILE';
     this.enemyInside = null;
+    this.explodedByPlayer = false;
 
 
     this.speed = 240;
@@ -38,9 +39,26 @@ export class Bubble extends Phaser.Physics.Arcade.Sprite {
 
     });
 
+    // Alerta a los 4 segundos
+this.scene.time.delayedCall(4000, () => {
+
+    if (!this.active) return;
+
+    this.changeState('ALERT');
+
+});
+
+
+// Explosión automática a los 5 segundos
+this.scene.time.delayedCall(5000, () => {
+
+    if (!this.active) return;
+
+    this.pop();
+
+});
+
   }
-
-
 
   changeState(newState) {
 
@@ -64,6 +82,24 @@ export class Bubble extends Phaser.Physics.Arcade.Sprite {
         );
 
         break;
+
+        case 'ALERT':
+
+    this.scene.tweens.add({
+
+        targets:this,
+
+        alpha:0.3,
+
+        duration:120,
+
+        yoyo:true,
+
+        repeat:-1
+
+    });
+
+break;
 
 
       case 'PLATFORM_BOUNCE':
@@ -101,14 +137,15 @@ export class Bubble extends Phaser.Physics.Arcade.Sprite {
 
   hitPlatform() {
 
-    if(this.state !== 'FLOATING') return;
-
+    if(
+        this.state !== 'FLOATING' &&
+        this.state !== 'ALERT'
+    ) return;
 
 
     this.changeState(
         'PLATFORM_BOUNCE'
     );
-
 
   }
 
@@ -143,50 +180,72 @@ export class Bubble extends Phaser.Physics.Arcade.Sprite {
 
 }
 
+explodeByPlayer(){
+
+    this.explodedByPlayer = true;
+
+    this.pop();
+
+}
 pop(){
 
     console.log("BURBUJA EXPLOTÓ");
 
 
-    if(this.enemyInside){
+if(this.enemyInside){
 
-        console.log("HAY ENEMIGO EN LA BURBUJA");
+    const enemy = this.enemyInside;
 
+    enemy.trappedBubble = null;
+    // sacar la rata un poco de la burbuja
+    enemy.body.reset(
+        enemy.x,
+        enemy.y - 20
+    );
 
-        const enemyX = this.enemyInside.x;
-        const enemyY = this.enemyInside.y;
-
-
-        console.log(
-            "POSICION FRUTA:",
-            enemyX,
-            enemyY
-        );
+    this.enemyInside = null;
 
 
-        this.enemyInside.trappedBubble = null;
 
+    if(this.explodedByPlayer){
 
-        this.enemyInside.changeState('DEAD');
+        console.log("ENEMIGO ELIMINADO");
 
-
-        this.enemyInside = null;
+        enemy.changeState('DEAD');
 
 
         FruitManager.spawn(
             this.scene,
-            enemyX,
-            enemyY - 40
+            enemy.x,
+            enemy.y - 40
         );
 
-    } else {
 
-        console.log("BURBUJA SIN ENEMIGO");
+    }else{
+
+
+        console.log("ENEMIGO LIBERADO");
+
+
+        enemy.changeState('ANGRY');
+
+
+        enemy.body.setAllowGravity(true);
+
+
+        enemy.setVelocityY(-150);
+
 
     }
 
+}
+    this.body.enable = false;
+
     this.body.setVelocity(0,0);
 
+    this.scene.tweens.killTweensOf(this);
+
+this.alpha = 1;
 
     this.play('bubble_pop');
 

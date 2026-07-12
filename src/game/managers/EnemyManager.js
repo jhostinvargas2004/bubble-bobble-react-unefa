@@ -25,16 +25,17 @@ export class EnemyManager {
 
         positions.forEach(pos => {
 
-            const rat = new Enemy(
+            const enemy = new Enemy(
                 scene,
                 pos.x,
-                pos.y
+                pos.y,
+                'rat'
             );
 
-            scene.enemies.add(rat);
+            scene.enemies.add(enemy);
 
             scene.physics.add.collider(
-                rat,
+                enemy,
                 scene.platformLayer
             );
 
@@ -52,12 +53,10 @@ export class EnemyManager {
 
             (bubble, enemy) => {
 
-                if (
-
+                if (bubble.state === 'PROJECTILE' &&
                     enemy.state !== 'TRAPPED' &&
                     bubble.enemyInside === null
-
-                ) {
+                    ) {
 
                     console.log("ENEMIGO ATRAPADO");
 

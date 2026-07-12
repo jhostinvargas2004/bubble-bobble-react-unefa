@@ -1,13 +1,23 @@
 import Phaser from 'phaser';
 import { Entity } from './Entity';
+import { EnemyConfig } from '../config/EnemyConfig';
 
 export class Enemy extends Entity {
 
-    constructor(scene, x, y) {
+    constructor(scene, x, y, type = 'rat') {
 
-        super(scene, x, y, 'rat_idle');
+    const config = EnemyConfig[type];
 
-        this.speed = 40;
+    super(
+        scene,
+        x,
+        y,
+        config.idle
+    );
+
+    this.type = type;
+
+        this.speed = config.speed;
         this.direction = 1;
         this.changeDirectionTimer = Phaser.Math.Between(2000,5000);
 
@@ -15,12 +25,10 @@ export class Enemy extends Entity {
         this.state = 'NORMAL';
         this.trappedBubble = null;
         this.play('rat_idle');
-        //this.setOrigin(0.5, 1);
-        this.setScale(1.8);
-        this.body.setSize(16, 16);
-        this.body.setOffset(24, 32);
-        
-
+        this.setScale(config.scale);
+        this.body.setSize(config.body.width, config.body.height);
+        this.body.setOffset(config.body.offsetX, config.body.offsetY);
+    
     }
 
 
@@ -31,6 +39,7 @@ export class Enemy extends Entity {
         switch (this.state) {
 
             case 'NORMAL':
+                this.body.setAllowGravity(true);
 
                 this.speed = 40;
 
@@ -39,24 +48,45 @@ export class Enemy extends Entity {
                 break;
 
 
-            case 'ANGRY':
+case 'ANGRY':
 
-                this.speed = 80;
+    this.speed = 80;
 
-                this.play('rat_angry', true);
 
-                break;
+    this.body.setAllowGravity(true);
+
+    this.body.enable = true;
+
+
+    // volver tamaño normal
+    this.setScale(1.8);
+
+
+    // despertar el cuerpo físico
+    this.body.moves = true;
+
+
+    // impulso para caer
+    this.setVelocityY(-150);
+
+
+    this.play('rat_angry', true);
+
+
+break;
 
 
             case 'TRAPPED':
 
-            this.body.setAllowGravity(false);
+    this.body.setAllowGravity(false);
 
-            this.setVelocity(0);
+    this.body.moves = false;
 
-            this.setScale(1.2);
+    this.setVelocity(0);
 
-                break;
+    this.setScale(1.2);
+
+break;
 
 
             case 'DEAD':
@@ -137,6 +167,13 @@ export class Enemy extends Entity {
 
 
     updateAngry() {
+        console.log(
+        "RATA",
+        this.y,
+        this.body.velocity.y,
+        this.body.allowGravity
+    );
+
 
         this.setVelocityX(this.speed * this.direction);
 
@@ -157,9 +194,13 @@ export class Enemy extends Entity {
     }
 
 
-   updateTrapped() {
+   updateTrapped(){
 
-    if (!this.trappedBubble) return;
+    if (!this.trappedBubble) {
+
+        return;
+
+    }
 
 
     this.x = this.trappedBubble.x;
