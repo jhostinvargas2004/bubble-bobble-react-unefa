@@ -8,76 +8,87 @@ import { GroupManager } from '../managers/GroupManager';
 import { Player } from '../entities/Player';
 
 export class GameScene extends Phaser.Scene {
-constructor() {
-    super({ key: 'GameScene' });
+    constructor() {
+        super({ key: 'GameScene' });
 
-    this.player = null;
-    this.platformLayer = null;
-    this.cursors = null;
-    this.attackKey = null;
-    this.bubbles = null;
-    this.enemies = null;
-    this.fruits = null;
-    this.map = null;
-}
+        this.player = null;
+        this.platformLayer = null;
+        this.cursors = null;
+        this.attackKey = null;
+        this.bubbles = null;
+        this.enemies = null;
+        this.fruits = null;
+        this.map = null;
+        
+        //variable del score 
+        this.score = 0;
+        this.scoreText = null; 
+    }
 
-preload() {
+    preload() {
+        AssetLoader.preload(this);
+    }
 
-    AssetLoader.preload(this);
+    create() {
+        console.log("GAME SCENE CREADA");
 
-}
+        // Reiniciar puntaje
+        this.score = 0;
 
-create() {
+        MapManager.create(this);
+        AnimationManager.create(this);
+        GroupManager.create(this);
 
-  console.log("GAME SCENE CREADA");
+        this.createPlayer();
+        EnemyManager.create(this);
+        CollisionManager.create(this);
+        this.createControls();
 
-    MapManager.create(this);
+        // 2. Texto debug en pantalla temporal mientras llega el back
+        this.scoreText = this.add.text(16, 16, 'SCORE: 0', { 
+            fontSize: '20px', 
+            fill: '#ffffff',
+            fontFamily: 'monospace'
+        });
+    }
 
-    AnimationManager.create(this);
+    gainPoints(amount) {
+        this.score += amount;
+        
+        // Actualizar el texto temporal
+        if (this.scoreText) {
+            this.scoreText.setText('SCORE: ' + this.score);
+        }
 
-    GroupManager.create(this);
+        // ¡EVENTO GLOBAL
+        this.game.events.emit('update-score', this.score);
 
-    this.createPlayer();
+        console.log("PUNTAJE ACTUALIZADO:", this.score);
+    }
 
-    EnemyManager.create(this);
+    createPlayer() {
+        this.player = new Player(this, 100, 300);
+        console.log("JUGADOR CREADO", this.player);
+    }
 
-    CollisionManager.create(this);
+    createControls() {
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.attackKey = this.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.X
+        );
+    }
 
-    this.createControls();
+    update() {
+        if (!this.player) return;
 
-}
+        this.player.move(this.cursors);
 
-createPlayer() {
+        if (this.input.keyboard.checkDown(this.attackKey, 100)) {
+            this.player.attack();
+        }
 
-    this.player = new Player(this, 100, 300);
-
-    console.log("JUGADOR CREADO", this.player);
-}
-
-createControls() {
-
-    this.cursors = this.input.keyboard.createCursorKeys();
-
-    this.attackKey = this.input.keyboard.addKey(
-        Phaser.Input.Keyboard.KeyCodes.X
-    );
-}
-
-
-update() {
-
-if (!this.player) return;
-
-this.player.move(this.cursors);
-
-if (this.input.keyboard.checkDown(this.attackKey, 100)) {
-    this.player.attack();
-}
-this.enemies.getChildren().forEach((enemy) => {
-
-    enemy.update();
-
-});
-}
-
+        this.enemies.getChildren().forEach((enemy) => {
+            enemy.update();
+        });
+    }
 }
