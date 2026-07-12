@@ -17,8 +17,8 @@ export class Enemy extends Entity {
         this.play('rat_idle');
         //this.setOrigin(0.5, 1);
         this.setScale(1.8);
-        this.body.setSize(24, 24);
-        this.body.setOffset(20, 20);
+        this.body.setSize(16, 16);
+        this.body.setOffset(24, 32);
         
 
     }
