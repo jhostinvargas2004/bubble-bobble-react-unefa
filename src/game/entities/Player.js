@@ -14,8 +14,9 @@ export class Player extends Entity {
   this.isAttacking = false;
 
   this.play('idle');
-
+  this.setScale(1.4);
   this.setSize(24, 24);
+  
 }
 
 
@@ -49,8 +50,14 @@ move(cursors) {
 
     this.setVelocityX(0);
 
-    if (this.body.blocked.down && !this.isAttacking) {
-      this.play('idle', true);
+    if (
+        this.body.blocked.down &&
+        !this.isAttacking &&
+        this.body.velocity.y === 0
+    ) {
+
+        this.play('idle', true);
+
     }
 
 }
@@ -64,6 +71,13 @@ move(cursors) {
     }
 
   }
+}
+
+bounceOnBubble() {
+
+    this.setVelocityY(-300);
+
+    this.play('hop', true);
 
 }
 
@@ -101,9 +115,16 @@ move(cursors) {
 
     this.once('animationcomplete-attack', () => {
 
-        this.isAttacking = false;
+    this.isAttacking = false;
 
-    });
+
+    if(this.body.blocked.down){
+
+        this.play('idle', true);
+
+    }
+
+});
 
     this.scene.time.delayedCall(300, () => {
 
