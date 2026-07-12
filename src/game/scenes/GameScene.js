@@ -20,7 +20,7 @@ export class GameScene extends Phaser.Scene {
         this.fruits = null;
         this.map = null;
         
-        //variable del score 
+        // Variables globales del score
         this.score = 0;
         this.scoreText = null; 
     }
@@ -31,8 +31,6 @@ export class GameScene extends Phaser.Scene {
 
     create() {
         console.log("GAME SCENE CREADA");
-
-        // Reiniciar puntaje
         this.score = 0;
 
         MapManager.create(this);
@@ -44,7 +42,7 @@ export class GameScene extends Phaser.Scene {
         CollisionManager.create(this);
         this.createControls();
 
-        // 2. Texto debug en pantalla temporal mientras llega el back
+        // Marcador debug para ver los puntos en Phaser
         this.scoreText = this.add.text(16, 16, 'SCORE: 0', { 
             fontSize: '20px', 
             fill: '#ffffff',
@@ -52,18 +50,16 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
+    // Método centralizado de puntuación
     gainPoints(amount) {
         this.score += amount;
         
-        // Actualizar el texto temporal
         if (this.scoreText) {
             this.scoreText.setText('SCORE: ' + this.score);
         }
 
-        // ¡EVENTO GLOBAL
+        // Le avisa al frontend de React que hay nuevos puntos
         this.game.events.emit('update-score', this.score);
-
-        console.log("PUNTAJE ACTUALIZADO:", this.score);
     }
 
     createPlayer() {
@@ -83,9 +79,11 @@ export class GameScene extends Phaser.Scene {
 
         this.player.move(this.cursors);
 
-        if (this.input.keyboard.checkDown(this.attackKey, 100)) {
-            this.player.attack();
-        }
+        // 10 pts al percionar para disparar
+        if (Phaser.Input.Keyboard.JustDown(this.attackKey)) {
+    this.player.attack();
+    this.gainPoints(10); 
+    }
 
         this.enemies.getChildren().forEach((enemy) => {
             enemy.update();

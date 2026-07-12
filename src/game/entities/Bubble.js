@@ -180,81 +180,75 @@ break;
 
 }
 
-explodeByPlayer(){
-
+explodeByPlayer() {
+    // evitar bucle
+    if (this.explodedByPlayer) return;
     this.explodedByPlayer = true;
 
-    this.pop();
+    let comboBubbles = [this]; // Empezar combo
 
-}
-pop(){
-
-    console.log("BURBUJA EXPLOTÓ");
-
-
-if(this.enemyInside){
-
-    const enemy = this.enemyInside;
-
-    enemy.trappedBubble = null;
-    // sacar la rata un poco de la burbuja
-    enemy.body.reset(
-        enemy.x,
-        enemy.y - 20
-    );
-
-    this.enemyInside = null;
-
-
-
-    if(this.explodedByPlayer){
-
-        console.log("ENEMIGO ELIMINADO");
-
-        enemy.changeState('DEAD');
-
-
-        FruitManager.spawn(
-            this.scene,
-            enemy.x,
-            enemy.y - 40
-        );
-
-
-    }else{
-
-
-        console.log("ENEMIGO LIBERADO");
-
-
-        enemy.changeState('ANGRY');
-
-
-        enemy.body.setAllowGravity(true);
-
-
-        enemy.setVelocityY(-150);
-
-
+    // verificacion de burbujas pegadas
+    if (this.scene.bubbles) {
+        this.scene.bubbles.getChildren().forEach((otherBubble) => {
+            if (otherBubble !== this && otherBubble.active && otherBubble.enemyInside && !otherBubble.explodedByPlayer) {
+                // distancia entre la burbuja inical del combo y el resto
+                const distance = Phaser.Math.Distance.Between(this.x, this.y, otherBubble.x, otherBubble.y);
+                
+                if (distance < 60) { // Rango cercano
+                    otherBubble.explodedByPlayer = true;
+                    comboBubbles.push(otherBubble);
+                }
+            }
+        });
     }
 
+    const comboSize = comboBubbles.length;
+    console.log(" ¡COMBO DETECTADO! Tamaño:", comboSize);
+
+    // Mandamos a explotar todas las burbujas del combo
+    comboBubbles.forEach((b) => {
+        b.pop(comboSize);
+    });
 }
+pop(comboSize = 1) {
+    console.log("BURBUJA EXPLOTÓ");
+
+    if (this.enemyInside) {
+        const enemy = this.enemyInside;
+        enemy.trappedBubble = null;
+        
+        // Sacar la rata un poco de la burbuja
+        enemy.body.reset(enemy.x, enemy.y - 20);
+        this.enemyInside = null;
+
+        if (this.explodedByPlayer) {
+            console.log("ENEMIGO ELIMINADO");
+            enemy.changeState('DEAD');
+
+            // enemigo derrotado = 1000pts
+            if (this.scene.gainPoints) {
+                this.scene.gainPoints(1000);
+            }
+
+            // dependiendo del combo la fruta
+            FruitManager.spawn(this.scene, enemy.x, enemy.y - 40, comboSize);
+
+        } else {
+            console.log("ENEMIGO LIBERADO");
+            enemy.changeState('ANGRY');
+            enemy.body.setAllowGravity(true);
+            enemy.setVelocityY(-150);
+        }
+    }
+
     this.body.enable = false;
-
-    this.body.setVelocity(0,0);
-
+    this.body.setVelocity(0, 0);
     this.scene.tweens.killTweensOf(this);
-
-this.alpha = 1;
-
+    this.alpha = 1;
     this.play('bubble_pop');
 
-
     this.once('animationcomplete', () => {
-
         this.destroy();
-
     });
-
 }
 }

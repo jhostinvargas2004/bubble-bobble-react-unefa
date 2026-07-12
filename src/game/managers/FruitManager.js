@@ -1,26 +1,23 @@
-import Phaser from 'phaser';
 import { Fruit } from '../entities/Fruit';
 
 export class FruitManager {
 
-    static spawn(scene, x, y, tier = 'ALL') {
-        let fruitTypes = [];
+    static spawn(scene, x, y, comboSize = 1) {
+        let fruitType = 'banana'; // Por defecto
 
-        if (tier === 'LOW') {
-            fruitTypes = ['cherry', 'banana'];
-        } else if (tier === 'MEDIUM') {
-            fruitTypes = ['orange', 'apple'];
-        } else if (tier === 'HIGH') {
-            fruitTypes = ['strawberry', 'black_grapes'];
+        if (comboSize <= 1) {
+            fruitType = 'banana';      // 500 pts
+        } else if (comboSize === 2) {
+            fruitType = 'orange';      // 1,000 pts
+        } else if (comboSize === 3) {
+            fruitType = 'strawberry';  // 2,000 pts
         } else {
-            fruitTypes = ['apple', 'banana', 'cherry', 'orange', 'black_grapes', 'strawberry'];
+            fruitType = 'black_grapes'; // 3,000+ pts (Premium)
         }
 
-        const randomFruit = Phaser.Utils.Array.GetRandom(fruitTypes);
-
-        const fruit = new Fruit(scene, x, y, randomFruit);
-
+        const fruit = new Fruit(scene, x, y, fruitType);
         scene.fruits.add(fruit);
+        
         return fruit;
     }
 }
