@@ -167,17 +167,14 @@ export class AnimationManager {
             });
 
             scene.anims.create({
-    key: 'ghost_attack', // Clave para invocar la animación
-    frames: scene.anims.generateFrameNumbers(
-        'ghost',
-        {
-            start: 5,   // Comienza en la segunda fila, primer frame
-            end: 14     // Termina al final de la tercera fila
-        }
-    ),
-    frameRate: 12,      // Ajusta la velocidad según veas qué tan fluido queda
-    repeat: -1          // -1 si quieres que buclee continuamente, o 0 si solo se ejecuta una vez por ataque
-});
+            key: 'ghost_attack', 
+            frames: scene.anims.generateFrameNumbers('ghost', {
+                start: 0,   
+                end: 7     
+            }),
+            frameRate: 10,      
+            repeat: -1          
+        });
 
             }
 

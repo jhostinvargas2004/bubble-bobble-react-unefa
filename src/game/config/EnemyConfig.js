@@ -1,5 +1,4 @@
 export const EnemyConfig = {
-
     rat: {
         idle: 'rat_idle',
         angry: 'rat_angry',
@@ -16,7 +15,6 @@ export const EnemyConfig = {
             offsetY: 32
         },
     },
-
     fly:{
         idle:'fly_idle',
         angry:'fly_idle',
@@ -32,7 +30,6 @@ export const EnemyConfig = {
             offsetY:8
         }
     },
-
     bee: {
         idle: 'bee_idle',
         angry: 'bee_angry', 
@@ -48,7 +45,6 @@ export const EnemyConfig = {
         },
         bubbleOffsetY: 5    
     },
-
     dragonfly: {
         idle: 'dragonfly_idle',
         angry: 'dragonfly_angry',
@@ -64,18 +60,17 @@ export const EnemyConfig = {
         invertFlip: false,
         isFlying: true    
     },
-
     ghost: {
-        idle: 'ghost_idle',
-        angry: 'ghost_idle', 
+        idle: 'ghost_attack',
+        angry: 'ghost_attack', 
         speed: 95,          
-        scale: 1, 
+        scale: 0.6, 
         isFlying: true,     
         body: { 
-            width: 32,    
-            height: 32, 
-            offsetX: 18,  
-            offsetY: 14  
+            width: 40,    
+            height: 40, 
+            offsetX: 12,  
+            offsetY: 10  
         }
     }
 };

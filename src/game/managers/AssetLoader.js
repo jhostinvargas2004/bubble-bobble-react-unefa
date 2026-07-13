@@ -120,10 +120,10 @@ export class AssetLoader {
 
         scene.load.spritesheet(
             'ghost', 
-            'assets/Dungeon Ghost-spritesheet.png', 
+            'assets/sprites/enemy/Dungeon Ghost-spritesheet.png', 
             { 
-                frameWidth: 68, 
-                frameHeight: 61
+                frameWidth: 64, 
+                frameHeight: 64
             }
         );
 
