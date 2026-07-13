@@ -23,7 +23,7 @@ router.post('/nuevo', async (req, res) => {
       return res.status(404).json({ error: 'Usuario no registrado' });
     }
 
-    res.json({ level: 1, score: 0, lives: 3 });
+    res.json({ level: 1, score: 0, lives: 1 });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al iniciar partida nueva' });
