@@ -14,74 +14,59 @@ export class CollisionManager {
     }
 
     static configureOneWayPlatforms(scene) {
-    if (!scene.platformLayer) return;
+        if (!scene.platformLayer) return;
 
-    scene.platformLayer.forEachTile(tile => {
-        if (tile.collides) {
-            
-            const isBorderWall = tile.x === 0 || tile.x === scene.platformLayer.layer.width - 1;
+        scene.platformLayer.forEachTile(tile => {
+            if (tile.collides) {
+                const isBorderWall = tile.x === 0 || tile.x === scene.platformLayer.layer.width - 1;
 
-            if (isBorderWall) {        
-                tile.faceTop = true;
-                tile.faceBottom = true;
-                tile.faceLeft = true;
-                tile.faceRight = true;
-            } else {
-                tile.faceTop = true;
-                tile.faceBottom = false;
-                tile.faceLeft = false;
-                tile.faceRight = false;
+                if (isBorderWall) {        
+                    tile.faceTop = true;
+                    tile.faceBottom = true;
+                    tile.faceLeft = true;
+                    tile.faceRight = true;
+                } else {
+                    tile.faceTop = true;
+                    tile.faceBottom = false;
+                    tile.faceLeft = false;
+                    tile.faceRight = false;
+                }
             }
-        }
-    });
-}
+        });
+    }
+
     static playerPlatform(scene) {
-        scene.physics.add.collider(
+        scene.playerPlatformCollider = scene.physics.add.collider(
             scene.player,
             scene.platformLayer
         );
     }
 
     static enemyPlatform(scene) {
-        scene.physics.add.collider(
+        scene.enemyPlatformCollider = scene.physics.add.collider(
             scene.enemies,
             scene.platformLayer
         );
     }
 
     static bubbleEnemy(scene) {
-
-        scene.physics.add.overlap(
-
+        scene.bubbleEnemyCollider = scene.physics.add.overlap(
             scene.bubbles,
-
             scene.enemies,
-
             (bubble, enemy) => {
-
-            if (
-
-                bubble.state === 'PROJECTILE' &&
-                enemy.state !== 'TRAPPED' &&
-                bubble.enemyInside === null
-
-            ) {
-
-                console.log("ENEMIGO ATRAPADO");
-
-                enemy.changeState('TRAPPED');
-
-                enemy.trappedBubble = bubble;
-
-                bubble.enemyInside = enemy;
-
+                if (
+                    bubble.state === 'PROJECTILE' &&
+                    enemy.state !== 'TRAPPED' &&
+                    bubble.enemyInside === null
+                ) {
+                    console.log("ENEMIGO ATRAPADO");
+                    enemy.changeState('TRAPPED');
+                    enemy.trappedBubble = bubble;
+                    bubble.enemyInside = enemy;
+                }
             }
-
-        }
-
-    );
-
-}
+        );
+    }
 
     static playerBubble(scene) {
         scene.physics.add.overlap(
@@ -100,38 +85,38 @@ export class CollisionManager {
                             bubble.explodeByPlayer(); 
                         }
                     }
-                } 
-
-                else {
+                } else {
                     if (bubble.state === 'PROJECTILE') return;
-
                     bubble.explodeByPlayer();
                 }
             }
         );
     }
+
     static bubblePlatform(scene) {
-        scene.physics.add.collider(
+        scene.bubblePlatformCollider = scene.physics.add.collider(
             scene.bubbles,
             scene.platformLayer,
             (bubble) => {
-                bubble.hitPlatform();
+                if (bubble.active) {
+                    bubble.hitPlatform();
+                }
             }
         );
     }
 
-    static playerFruit(scene){
+    static playerFruit(scene) {
         scene.physics.add.overlap(
             scene.player,
             scene.fruits,
-            (player, fruit)=>{
+            (player, fruit) => {
                 fruit.collect();
             }
         );
     }
 
-    static fruitPlatform(scene){
-        scene.physics.add.collider(
+    static fruitPlatform(scene) {
+        scene.fruitPlatformCollider = scene.physics.add.collider(
             scene.fruits,
             scene.platformLayer
         );

@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
-import { GameScene } from './scenes/GameScene';
+import { 
+  Level1, Level2, Level3, Level4, Level5, 
+  Level6, Level7, Level8, Level9, Level10 
+} from './scenes/Levels';
 
 export const gameConfig = {
   type: Phaser.AUTO,
@@ -12,5 +15,5 @@ export const gameConfig = {
       debug: true        
     }
   },
-  scene: [GameScene] 
+  scene: [Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level8, Level9, Level10] 
 };

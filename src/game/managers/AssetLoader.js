@@ -12,6 +12,56 @@ export class AssetLoader {
             'assets/mapa.json'
         );
 
+        scene.load.tilemapTiledJSON(
+            'mapa1',
+            'assets/mapa1.json'
+        );
+
+        scene.load.tilemapTiledJSON(
+            'mapa2',
+            'assets/mapa2.json'
+        );
+
+         scene.load.tilemapTiledJSON(
+            'mapa3',
+            'assets/mapa3.json'
+        );
+
+        scene.load.tilemapTiledJSON(
+            'mapa4',
+            'assets/mapa4.json'
+        );
+
+        scene.load.tilemapTiledJSON(
+            'mapa5',
+            'assets/mapa5.json'
+        );
+
+        scene.load.tilemapTiledJSON(
+            'mapa6',
+            'assets/mapa6.json'
+        );
+
+        scene.load.tilemapTiledJSON(
+            'mapa7',
+            'assets/mapa7.json'
+        );
+
+        scene.load.tilemapTiledJSON(
+            'mapa8',
+            'assets/mapa8.json'
+        );
+
+        scene.load.tilemapTiledJSON(
+            'mapa9',
+            'assets/mapa9.json'
+        );
+
+        scene.load.tilemapTiledJSON(
+            'mapa10',
+            'assets/mapa10.json'
+        );
+
         // player
         scene.load.spritesheet(
             'player_idle',

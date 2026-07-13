@@ -153,6 +153,10 @@ export class Bubble extends Phaser.Physics.Arcade.Sprite {
             }
 
             FruitManager.spawn(this.scene, enemy.x, enemy.y - 40, comboSize);
+            if (this.scene.enemyKilled) {
+                this.scene.enemyKilled();
+            }
+
 
         } else {
             console.log("ENEMIGO LIBERADO AUTOMÁTICAMENTE");

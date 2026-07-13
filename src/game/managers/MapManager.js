@@ -1,25 +1,16 @@
+// MapManager.js súper limpio sin código basura
 export class MapManager {
+    static create(scene, mapKey) {
+        scene.map = scene.make.tilemap({ key: mapKey });
 
-    static create(scene) {
+        const tileset = scene.map.addTilesetImage('bloques_retro', 'tiles');
 
-        scene.map = scene.make.tilemap({
-            key: 'mapa'
-        });
+        scene.platformLayer = scene.map.createLayer('plataformas', tileset, 0, 0);
 
-        const tileset = scene.map.addTilesetImage(
-            'bloques_retro',
-            'tiles'
-        );
-
-        scene.platformLayer = scene.map.createLayer(
-            'plataformas',
-            tileset,
-            0,
-            0
-        );
-
-        scene.platformLayer.setCollisionByExclusion([-1]);
-
+        if (scene.platformLayer) {
+            scene.platformLayer.setCollisionByExclusion([-1]);
+        } else {
+            console.error("❌ No se pudo crear la capa plataformas para:", mapKey);
+        }
     }
-
 }
