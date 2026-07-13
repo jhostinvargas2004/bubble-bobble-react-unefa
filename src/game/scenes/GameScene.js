@@ -1,184 +1,158 @@
 import Phaser from 'phaser';
+import { MapManager } from '../managers/MapManager';
+import { AnimationManager } from '../managers/AnimationManager';
+import { AssetLoader } from '../managers/AssetLoader';
+import { CollisionManager } from '../managers/CollisionManager';
+import { GroupManager } from '../managers/GroupManager';
+import { EnemyManager } from '../managers/EnemyManager';
 import { Player } from '../entities/Player';
 
 export class GameScene extends Phaser.Scene {
-constructor() {
-    super({ key: 'GameScene' });
 
-    this.player = null;
-    this.platformLayer = null;
-    this.cursors = null;
-    this.attackKey = null;
-    this.bubbles = null;
-    this.map = null;
-}
+    constructor(key = 'GameScene', mapKey = 'mapa', enemyList = [], levelTime = 30) {
+        super({ key: key });
 
-preload() {
-  this.load.image('tiles', 'assets/ladrillos.png');
-  this.load.tilemapTiledJSON('mapa', 'assets/mapa.json');
+        this.mapKey = mapKey;
+        this.enemyList = enemyList;
+        this.levelTimeLimit = levelTime; 
 
-  this.load.spritesheet(
-    'player_idle',
-    'assets/sprites/player/ToxicFrogBlueBrown_Idle.png',
-    {
-      frameWidth: 48,
-      frameHeight: 48
+        this.isChangingLevel = false;
+        this.player = null;
+        this.platformLayer = null;
+        this.cursors = null;
+        this.attackKey = null;
+        this.bubbles = null;
+        this.enemies = null;
+        this.fruits = null;
+        this.map = null;
+        
+        this.score = 0; 
+        this.scoreText = null; 
+        
+        this.levelTime = levelTime;
+        this.timeTimer = null;
+        this.timeGhost = null;
     }
-  );
 
-  this.load.spritesheet(
-    'player_hop',
-    'assets/sprites/player/ToxicFrogBlueBrown_Hop.png',
-    {
-      frameWidth: 48,
-      frameHeight: 48
+    init(data) {
+        this.isChangingLevel = false;
+        this.score = data.score || 0;
+        this.levelTime = this.levelTimeLimit; 
+        this.timeGhost = null;
     }
-  );
 
-  this.load.spritesheet(
-    'player_attack',
-    'assets/sprites/player/ToxicFrogBlueBrown_Attack.png',
-    {
-      frameWidth: 48,
-      frameHeight: 48
+    preload() {
+        AssetLoader.preload(this);
     }
-  );
 
- this.load.spritesheet(
-  'bubble',
-  'assets/sprites/bubble/bubble_sheet.png',
-  {
-    frameWidth: 24,
-    frameHeight: 24
-  }
-);
-}
+    create() {
+        MapManager.create(this, this.mapKey);
+        AnimationManager.create(this);
+        GroupManager.create(this);
 
-create() {
+        this.createPlayer();
+        
+        EnemyManager.create(this, this.enemyList);
+        
+        CollisionManager.create(this);
+        this.createControls();
 
-  console.log("GAME SCENE CREADA");
+        this.scoreText = this.add.text(16, 16, 'SCORE: ' + this.score, { 
+            fontSize: '20px', 
+            fill: '#ffffff',
+            fontFamily: 'monospace'
+        });
 
-    this.createMap();
+        this.startLevelTimer();
+    }
 
-    this.createAnimations();
+    startLevelTimer() {
+        if (this.timeTimer) this.timeTimer.destroy();
 
-    this.createGroups();
+        this.timeTimer = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                if (this.isChangingLevel || !this.player || this.player.isSpawning || this.player.isDead) return;
 
-    this.createPlayer();
+                this.levelTime--;
+                console.log("⏱️ Remaining Time:", this.levelTime); 
 
-    this.createControls();
+                if (this.levelTime <= 0) {
+                    this.spawnGhost();
+                }
+            },
+            loop: true
+        });
+    }
 
-}
+    spawnGhost() {
+        if (this.timeTimer) this.timeTimer.destroy(); 
 
-createMap() {
+        if (!this.timeGhost) {
+            
+            EnemyManager.create(this, ['ghost']);
+            
+            this.timeGhost = this.enemies.getChildren().find(e => e.type === 'ghost');
+        }
+    }
 
-    this.map = this.make.tilemap({ key: 'mapa' });
+    gainPoints(amount) {
+        this.score += amount;
+        if (this.scoreText) {
+            this.scoreText.setText('SCORE: ' + this.score);
+        }
+        this.game.events.emit('update-score', this.score);
+    }
 
-    const tileset = this.map.addTilesetImage(
-        'bloques_retro',
-        'tiles'
-    );
+    createPlayer() {
+        this.player = new Player(this, 100, 550); 
+        console.log("JUGADOR CREADO Y ENTRANDO EN BURBUJA", this.player);
 
-    this.platformLayer = this.map.createLayer(
-        'plataformas',
-        tileset,
-        0,
-        0
-    );
+        this.player.spawnInBubble();
+    }
 
-    this.platformLayer.setCollisionByExclusion([-1]);
+    createControls() {
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.attackKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+    }
 
-}
+    enemyKilled() {
+        if (this.isChangingLevel) return;
 
-createGroups() {
+        this.time.delayedCall(5000, () => {
+            if (this.isChangingLevel) return;
 
-    this.bubbles = this.physics.add.group({
+            const activeEnemies = EnemyManager.remaining(this);
+            const ghostExists = this.timeGhost && this.timeGhost.active;
+            
+            const isLevelCleared = ghostExists ? (activeEnemies <= 1) : (activeEnemies === 0);
 
-        allowGravity: false,
-        immovable: false
+            if (isLevelCleared) {
+                this.isChangingLevel = true;
+                console.log("🏆 Level Completed!");
+                
+                if (this.timeTimer) this.timeTimer.destroy();
+                if (this.timeGhost) {
+                    this.timeGhost.destroy();
+                    this.timeGhost = null;
+                }
+                
+                this.nextLevel(); 
+            }
+        });
+    }
 
-    });
+    update() {
+        if (!this.player) return;
 
-}
+        this.player.move(this.cursors);
 
-createPlayer() {
+        if (Phaser.Input.Keyboard.JustDown(this.attackKey)) {
+            this.player.attack();
+        }
 
-    this.player = new Player(this, 100, 300);
-
-    console.log("JUGADOR CREADO", this.player);
-
-    this.physics.add.collider(
-        this.player,
-        this.platformLayer
-    );
-
-}
-
-createControls() {
-
-    this.cursors = this.input.keyboard.createCursorKeys();
-
-    this.attackKey = this.input.keyboard.addKey(
-        Phaser.Input.Keyboard.KeyCodes.X
-    );
-
-}
-  // Animaciones del jugador
-createAnimations() {
-
-    this.anims.create({
-        key: 'idle',
-        frames: this.anims.generateFrameNumbers('player_idle'),
-        frameRate: 8,
-        repeat: -1
-    });
-
-    this.anims.create({
-        key: 'hop',
-        frames: this.anims.generateFrameNumbers('player_hop'),
-        frameRate: 10,
-        repeat: -1
-    });
-
-    this.anims.create({
-        key: 'attack',
-        frames: this.anims.generateFrameNumbers('player_attack'),
-        frameRate: 10,
-        repeat: 0
-    });
-
-    this.anims.create({
-        key: 'bubble_float',
-        frames: this.anims.generateFrameNumbers('bubble', {
-            start: 0,
-            end: 88
-        }),
-        frameRate: 12,
-        repeat: 0
-    });
-
-    this.anims.create({
-        key: 'bubble_pop',
-        frames: this.anims.generateFrameNumbers('bubble', {
-            start: 14,
-            end: 19
-        }),
-        frameRate: 12,
-        repeat: 0
-    });
-
-  }
-
-  update() {
-
-if (!this.player) return;
-
-this.player.move(this.cursors);
-
-if (this.input.keyboard.checkDown(this.attackKey, 100)) {
-    this.player.attack();
-}
-
-}
-
+        this.enemies.getChildren().forEach((enemy) => {
+            enemy.update();
+        });
+    }
 }
