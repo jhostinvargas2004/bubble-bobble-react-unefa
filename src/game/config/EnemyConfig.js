@@ -33,37 +33,52 @@ export const EnemyConfig = {
         }
     },
 
-bee: {
-    idle: 'bee_idle',
-    angry: 'bee_angry', 
-    speed: 50,  
-    scale: 1.5, 
-    invertFlip: true,
-    isFlying: true,
-    body: {
-        width: 24,      
-        height: 20,    
-        offsetX: 20,     
-        offsetY: 22     
+    bee: {
+        idle: 'bee_idle',
+        angry: 'bee_angry', 
+        speed: 50,  
+        scale: 1.5, 
+        invertFlip: true,
+        isFlying: true,
+        body: {
+            width: 24,      
+            height: 20,    
+            offsetX: 20,     
+            offsetY: 22     
+        },
+        bubbleOffsetY: 5    
     },
-    bubbleOffsetY: 5    
-},
 
-dragonfly: {
-    idle: 'dragonfly_idle',
-    angry: 'dragonfly_angry',
-    speed: 65,  
-    scale: 1.2, 
-    body: {
-        width: 22,       
-        height: 18,      
-        offsetX: 5,      
-        offsetY: 8       
+    dragonfly: {
+        idle: 'dragonfly_idle',
+        angry: 'dragonfly_angry',
+        speed: 65,  
+        scale: 1.2, 
+        body: {
+            width: 22,       
+            height: 18,      
+            offsetX: 5,      
+            offsetY: 8       
+        },
+        bubbleOffsetY: -2,   
+        invertFlip: false,
+        isFlying: true    
     },
-    bubbleOffsetY: -2,   
-    invertFlip: false,
-    isFlying: true    
-}
 
-
+    // 🔥 NUESTRO FANTASMA INCORPORADO CON ÉXITO
+    ghost: {
+        idle: 'fly_idle',   
+        angry: 'fly_idle',  
+        speed: 85,          
+        scale: 1.5, 
+        invertFlip: false,
+        isFlying: true,     
+        body: {
+            width: 24,       
+            height: 24,      
+            offsetX: 4,      
+            offsetY: 4       
+        },
+        bubbleOffsetY: 0   
+    }
 };

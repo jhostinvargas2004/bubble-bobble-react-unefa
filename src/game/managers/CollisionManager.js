@@ -43,17 +43,33 @@ export class CollisionManager {
     }
 
     static enemyPlatform(scene) {
+        // 🛠️ Mantenemos su propiedad pero agregamos el filtro de traspasar plataformas para el ghost
         scene.enemyPlatformCollider = scene.physics.add.collider(
             scene.enemies,
-            scene.platformLayer
+            scene.platformLayer,
+            null, // No necesitamos lógica extra al chocar, ya el ghost vuela directo
+            (enemy, tile) => {
+                if (enemy.type === 'ghost') {
+                    return false; // 👻 El suelo y las plataformas no existen para el fantasma
+                }
+                return true; // Los demás enemigos chocan normal
+            }
         );
     }
 
     static bubbleEnemy(scene) {
+        // 🛠️ Mantenemos su propiedad inyectando el escudo anti-burbujas al inicio
         scene.bubbleEnemyCollider = scene.physics.add.overlap(
             scene.bubbles,
             scene.enemies,
             (bubble, enemy) => {
+                
+                // 🔥 ESCUDO FANTASMA: Si es el ghost, la burbuja estalla y salimos de la función
+                if (enemy.type === 'ghost') {
+                    bubble.destroy();
+                    return;
+                }
+
                 if (
                     bubble.state === 'PROJECTILE' &&
                     enemy.state !== 'TRAPPED' &&
@@ -92,7 +108,6 @@ export class CollisionManager {
             }
         );
     }
-
     static bubblePlatform(scene) {
         scene.bubblePlatformCollider = scene.physics.add.collider(
             scene.bubbles,

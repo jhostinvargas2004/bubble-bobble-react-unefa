@@ -56,6 +56,40 @@ export class GameScene extends Phaser.Scene {
             fill: '#ffffff',
             fontFamily: 'monospace'
         });
+
+        // =========================================================================
+        // 🔥 EL RELOJ INMORTAL DEL FANTASMA (INYECTADO EN EL CORAZÓN DE LA ESCENA)
+        // =========================================================================
+        this.levelTime = 5; // 💥 Ponemos los 5 segundos de prueba aquí directamente
+        this.timeGhost = null;
+
+        this.timeTimer = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                if (this.isChangingLevel || (this.player && !this.player.active)) return;
+
+                this.levelTime--;
+                console.log("⏱️ Tiempo restante:", this.levelTime); 
+
+                if (this.levelTime <= 0) {
+                    this.timeTimer.destroy(); 
+
+                    if (!this.timeGhost) {
+                        console.log("👻 ¡EL TIEMPO SE AGOTÓ! APARECE EL FANTASMA");
+                        
+                        EnemyManager.create(this, ['ghost']);
+                        
+                        this.timeGhost = this.enemies.getChildren().find(e => e.type === 'ghost');
+
+                        if (this.timeGhost) {
+                            this.timeGhost.body.setAllowGravity(false);
+                            this.timeGhost.body.setImmovable(true); 
+                        }
+                    }
+                }
+            },
+            loop: true
+        });
     }
 
     gainPoints(amount) {
@@ -80,9 +114,24 @@ export class GameScene extends Phaser.Scene {
         if (this.isChangingLevel) return;
 
         this.time.delayedCall(5000, () => {
-            if (EnemyManager.remaining(this) === 0) {
+            if (this.isChangingLevel) return;
+
+            const enemigosActivos = EnemyManager.remaining(this);
+            const fantasmaExiste = this.timeGhost && this.timeGhost.active;
+            
+            // 🛠️ Si el fantasma te está persiguiendo, ganas al quedar 1 (él). Si no, al quedar 0.
+            const ganarOla = fantasmaExiste ? (enemigosActivos <= 1) : (enemigosActivos === 0);
+
+            if (ganarOla) {
                 this.isChangingLevel = true;
                 console.log("¡Nivel completado!");
+                
+                // 🔥 Limpieza del reloj y fantasma antes de saltar de escena
+                if (this.timeTimer) this.timeTimer.destroy();
+                if (this.timeGhost) {
+                    this.timeGhost.destroy();
+                    this.timeGhost = null;
+                }
                 
                 this.nextLevel(); 
             }

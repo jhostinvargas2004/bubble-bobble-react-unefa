@@ -95,13 +95,28 @@ export class Enemy extends Entity {
         const delta = this.scene.game.loop.delta;
         const player = this.scene.player; 
 
+        // 🔥 ¡PERSECUCIÓN INMORTAL DEL FANTASMA RECUPERADA!
+        if (this.type === 'ghost' && player) {
+            if (this.body.allowGravity) this.body.setAllowGravity(false);
+            
+            // Ángulo directo y empuje físico tridimensional (atraviesa plataformas)
+            const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
+            
+            this.body.setVelocityX(Math.cos(angle) * this.speed);
+            this.body.setVelocityY(Math.sin(angle) * this.speed);
+            
+            this.directionX = player.x > this.x ? 1 : -1;
+            this.flipX = config.invertFlip ? (this.directionX !== -1) : (this.directionX === -1);
+            return; // Detiene el código de abajo para que vuele libre
+        } 
+
         if (player) {
             this.changeDirectionTimer -= delta;
             if (this.changeDirectionTimer <= 0) {
         
                 const targetX = player.x + this.offsetX;
 
-                if (targetX > this.x) {
+        if (targetX > this.x) {
                     this.directionX = 1;
                 } else {
                     this.directionX = -1;
@@ -116,9 +131,7 @@ export class Enemy extends Entity {
             this.setVelocityY((this.speed * 0.8) * this.directionY);
 
             if (player) {
-            
                 const targetY = player.y + this.offsetY;
-                
                 if (targetY < this.y - 10) {
                     this.directionY = -1;
                 } else if (targetY > this.y + 10) {
@@ -135,6 +148,7 @@ export class Enemy extends Entity {
             this.jumpTimer -= delta;
             if (this.jumpTimer <= 0) {
                 if (this.body.blocked.down && player) {
+                    // Remendado el operador || lógico que faltaba en el repositorio limpio
                     if (player.y < this.y - 32 || this.body.blocked.left || this.body.blocked.right) {
                         this.setVelocityY(config.jumpForce || -250);
                     }
@@ -155,6 +169,7 @@ export class Enemy extends Entity {
             this.flipX = this.directionX === -1;
         }
     }
+
     updateTrapped() {
         if (!this.trappedBubble) return;
 
