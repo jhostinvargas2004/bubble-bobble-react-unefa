@@ -9,13 +9,14 @@ import { Player } from '../entities/Player';
 
 export class GameScene extends Phaser.Scene {
 
-    constructor(key = 'GameScene', mapKey = 'mapa', enemyList = []) {
+    constructor(key = 'GameScene', mapKey = 'mapa', enemyList = [], levelTime = 30) {
         super({ key: key });
 
         this.mapKey = mapKey;
         this.enemyList = enemyList;
-        this.isChangingLevel = false;
+        this.levelTimeLimit = levelTime; 
 
+        this.isChangingLevel = false;
         this.player = null;
         this.platformLayer = null;
         this.cursors = null;
@@ -27,11 +28,17 @@ export class GameScene extends Phaser.Scene {
         
         this.score = 0; 
         this.scoreText = null; 
+        
+        this.levelTime = levelTime;
+        this.timeTimer = null;
+        this.timeGhost = null;
     }
 
     init(data) {
         this.isChangingLevel = false;
         this.score = data.score || 0;
+        this.levelTime = this.levelTimeLimit; 
+        this.timeGhost = null;
     }
 
     preload() {
@@ -40,7 +47,6 @@ export class GameScene extends Phaser.Scene {
 
     create() {
         MapManager.create(this, this.mapKey);
-
         AnimationManager.create(this);
         GroupManager.create(this);
 
@@ -57,39 +63,37 @@ export class GameScene extends Phaser.Scene {
             fontFamily: 'monospace'
         });
 
-        // =========================================================================
-        // 🔥 EL RELOJ INMORTAL DEL FANTASMA (INYECTADO EN EL CORAZÓN DE LA ESCENA)
-        // =========================================================================
-        this.levelTime = 5; // 💥 Ponemos los 5 segundos de prueba aquí directamente
-        this.timeGhost = null;
+        this.startLevelTimer();
+    }
+
+    startLevelTimer() {
+        if (this.timeTimer) this.timeTimer.destroy();
 
         this.timeTimer = this.time.addEvent({
             delay: 1000,
             callback: () => {
-                if (this.isChangingLevel || (this.player && !this.player.active)) return;
+                if (this.isChangingLevel || !this.player || this.player.isSpawning || this.player.isDead) return;
 
                 this.levelTime--;
-                console.log("⏱️ Tiempo restante:", this.levelTime); 
+                console.log("⏱️ Remaining Time:", this.levelTime); 
 
                 if (this.levelTime <= 0) {
-                    this.timeTimer.destroy(); 
-
-                    if (!this.timeGhost) {
-                        console.log("👻 ¡EL TIEMPO SE AGOTÓ! APARECE EL FANTASMA");
-                        
-                        EnemyManager.create(this, ['ghost']);
-                        
-                        this.timeGhost = this.enemies.getChildren().find(e => e.type === 'ghost');
-
-                        if (this.timeGhost) {
-                            this.timeGhost.body.setAllowGravity(false);
-                            this.timeGhost.body.setImmovable(true); 
-                        }
-                    }
+                    this.spawnGhost();
                 }
             },
             loop: true
         });
+    }
+
+    spawnGhost() {
+        if (this.timeTimer) this.timeTimer.destroy(); 
+
+        if (!this.timeGhost) {
+            
+            EnemyManager.create(this, ['ghost']);
+            
+            this.timeGhost = this.enemies.getChildren().find(e => e.type === 'ghost');
+        }
     }
 
     gainPoints(amount) {
@@ -101,8 +105,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     createPlayer() {
-        this.player = new Player(this, 100, 300);
-        console.log("JUGADOR CREADO", this.player);
+        this.player = new Player(this, 100, 550); 
+        console.log("JUGADOR CREADO Y ENTRANDO EN BURBUJA", this.player);
+
+        this.player.spawnInBubble();
     }
 
     createControls() {
@@ -116,17 +122,15 @@ export class GameScene extends Phaser.Scene {
         this.time.delayedCall(5000, () => {
             if (this.isChangingLevel) return;
 
-            const enemigosActivos = EnemyManager.remaining(this);
-            const fantasmaExiste = this.timeGhost && this.timeGhost.active;
+            const activeEnemies = EnemyManager.remaining(this);
+            const ghostExists = this.timeGhost && this.timeGhost.active;
             
-            // 🛠️ Si el fantasma te está persiguiendo, ganas al quedar 1 (él). Si no, al quedar 0.
-            const ganarOla = fantasmaExiste ? (enemigosActivos <= 1) : (enemigosActivos === 0);
+            const isLevelCleared = ghostExists ? (activeEnemies <= 1) : (activeEnemies === 0);
 
-            if (ganarOla) {
+            if (isLevelCleared) {
                 this.isChangingLevel = true;
-                console.log("¡Nivel completado!");
+                console.log("🏆 Level Completed!");
                 
-                // 🔥 Limpieza del reloj y fantasma antes de saltar de escena
                 if (this.timeTimer) this.timeTimer.destroy();
                 if (this.timeGhost) {
                     this.timeGhost.destroy();
@@ -145,7 +149,6 @@ export class GameScene extends Phaser.Scene {
 
         if (Phaser.Input.Keyboard.JustDown(this.attackKey)) {
             this.player.attack();
-            
         }
 
         this.enemies.getChildren().forEach((enemy) => {

@@ -6,15 +6,15 @@ export class Enemy extends Entity {
 
     constructor(scene, x, y, type = 'rat') {
         const config = EnemyConfig[type];
-
         super(scene, x, y, config.idle);
 
         this.type = type;
-
         this.isFlying = config.isFlying;
+        
         this.body.setCollideWorldBounds(true);
         this.baseSpeed = config.speed;
         this.speed = this.baseSpeed;
+        
         this.offsetX = Phaser.Math.Between(-40, 40);
         this.offsetY = this.isFlying ? Phaser.Math.Between(-30, 30) : 0;
         
@@ -32,7 +32,7 @@ export class Enemy extends Entity {
         this.body.setSize(config.body.width, config.body.height);
         this.body.setOffset(config.body.offsetX, config.body.offsetY);
 
-        if (this.isFlying) {
+        if (this.isFlying || this.type === 'ghost') {
             this.body.setAllowGravity(false);
         }
     }
@@ -43,7 +43,7 @@ export class Enemy extends Entity {
 
         switch (this.state) {
             case 'NORMAL':
-                this.body.setAllowGravity(!this.isFlying);
+                this.body.setAllowGravity(!this.isFlying && this.type !== 'ghost');
                 this.speed = this.baseSpeed;
                 this.clearTint();
                 this.play(config.idle, true);
@@ -51,12 +51,12 @@ export class Enemy extends Entity {
 
             case 'ANGRY':
                 this.speed = this.baseSpeed * 1.6; 
-                this.body.setAllowGravity(!this.isFlying);
+                this.body.setAllowGravity(!this.isFlying && this.type !== 'ghost');
                 this.body.enable = true;
                 this.setScale(config.scale); 
                 this.body.moves = true;
- 
                 this.setVelocityY(-150);
+
                 if (this.isFlying) {
                     this.directionY = Phaser.Math.Between(0, 1) === 0 ? 1 : -1;
                 }
@@ -93,49 +93,82 @@ export class Enemy extends Entity {
     handleMovement() {
         const config = EnemyConfig[this.type];
         const delta = this.scene.game.loop.delta;
-        const player = this.scene.player; 
+        
+        const player = (this.scene.player && !this.scene.player.isSpawning) ? this.scene.player : null; 
 
-        // 🔥 ¡PERSECUCIÓN INMORTAL DEL FANTASMA RECUPERADA!
-        if (this.type === 'ghost' && player) {
-            if (this.body.allowGravity) this.body.setAllowGravity(false);
+        const limiteIzquierdo = 32;
+        const limiteDerecho = this.scene.sys.game.config.width - 32;
+        const techoDeVuelo = 150; 
+        const pisoDeVuelo = 320;  
+
+        if (this.type === 'ghost') {
+            if (this.body.allowGravity) {
+                this.body.setAllowGravity(false);
+            }
             
-            // Ángulo directo y empuje físico tridimensional (atraviesa plataformas)
+           
+            if (!player) {
+                this.setVelocityX(this.speed * 0.3 * this.directionX);
+                this.setVelocityY(this.speed * 0.2 * this.directionY);
+
+                if (this.x <= limiteIzquierdo) this.directionX = 1;
+                if (this.x >= limiteDerecho) this.directionX = -1;
+                if (this.y <= techoDeVuelo) this.directionY = 1;
+                if (this.y >= pisoDeVuelo) this.directionY = -1;
+
+                if (this.body.blocked.left || this.body.blocked.right) this.directionX *= -1;
+                if (this.body.blocked.up || this.body.blocked.down) this.directionY *= -1;
+                return;
+            }
+
             const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
-            
             this.body.setVelocityX(Math.cos(angle) * this.speed);
             this.body.setVelocityY(Math.sin(angle) * this.speed);
             
             this.directionX = player.x > this.x ? 1 : -1;
             this.flipX = config.invertFlip ? (this.directionX !== -1) : (this.directionX === -1);
-            return; // Detiene el código de abajo para que vuele libre
+            return; 
         } 
 
         if (player) {
             this.changeDirectionTimer -= delta;
             if (this.changeDirectionTimer <= 0) {
-        
                 const targetX = player.x + this.offsetX;
-
-        if (targetX > this.x) {
-                    this.directionX = 1;
-                } else {
-                    this.directionX = -1;
-                }
-                
+                this.directionX = targetX > this.x ? 1 : -1;
                 this.changeDirectionTimer = Phaser.Math.Between(800, 1500); 
+            }
+        } else {
+            this.changeDirectionTimer -= delta;
+            if (this.changeDirectionTimer <= 0) {
+                this.directionX = Phaser.Math.Between(0, 1) === 0 ? 1 : -1;
+                if (this.isFlying) {
+                    this.directionY = Phaser.Math.Between(0, 1) === 0 ? 1 : -1;
+                }
+                this.changeDirectionTimer = Phaser.Math.Between(1000, 3000);
+            }
+
+            if (this.x <= limiteIzquierdo) {
+                this.directionX = 1;
+            } else if (this.x >= limiteDerecho) {
+                this.directionX = -1;
             }
         }
 
         if (this.isFlying) {
             this.setVelocityX(this.speed * this.directionX);
-            this.setVelocityY((this.speed * 0.8) * this.directionY);
-
+            this.setVelocityY((this.speed * 0.6) * this.directionY); 
             if (player) {
                 const targetY = player.y + this.offsetY;
                 if (targetY < this.y - 10) {
                     this.directionY = -1;
                 } else if (targetY > this.y + 10) {
                     this.directionY = 1;
+                }
+            } else {
+                if (this.y <= techoDeVuelo) {
+                    this.directionY = 1; 
+                } else if (this.y >= pisoDeVuelo) {
+                    this.directionY = -1;
                 }
             }
 
@@ -147,9 +180,10 @@ export class Enemy extends Entity {
             
             this.jumpTimer -= delta;
             if (this.jumpTimer <= 0) {
-                if (this.body.blocked.down && player) {
-                    // Remendado el operador || lógico que faltaba en el repositorio limpio
-                    if (player.y < this.y - 32 || this.body.blocked.left || this.body.blocked.right) {
+                if (this.body.blocked.down) {
+                    if (player && player.y < this.y - 32) {
+                        this.setVelocityY(config.jumpForce || -250);
+                    } else if (!player && Phaser.Math.Between(0, 3) === 0) {
                         this.setVelocityY(config.jumpForce || -250);
                     }
                 }
@@ -163,11 +197,7 @@ export class Enemy extends Entity {
             this.directionX = -1;
         }
 
-        if (config.invertFlip) {
-            this.flipX = this.directionX !== -1;
-        } else {
-            this.flipX = this.directionX === -1;
-        }
+        this.flipX = config.invertFlip ? (this.directionX !== -1) : (this.directionX === -1);
     }
 
     updateTrapped() {

@@ -137,6 +137,7 @@ export class Bubble extends Phaser.Physics.Arcade.Sprite {
   }
 
   pop(comboSize = 1) {
+    if (!this.scene || !this.active) return;
     if (this.enemyInside) {
         const enemy = this.enemyInside;
         enemy.trappedBubble = null;

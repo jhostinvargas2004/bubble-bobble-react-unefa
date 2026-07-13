@@ -43,28 +43,21 @@ export class CollisionManager {
     }
 
     static enemyPlatform(scene) {
-        // 🛠️ Mantenemos su propiedad pero agregamos el filtro de traspasar plataformas para el ghost
         scene.enemyPlatformCollider = scene.physics.add.collider(
             scene.enemies,
             scene.platformLayer,
-            null, // No necesitamos lógica extra al chocar, ya el ghost vuela directo
-            (enemy, tile) => {
-                if (enemy.type === 'ghost') {
-                    return false; // 👻 El suelo y las plataformas no existen para el fantasma
-                }
-                return true; // Los demás enemigos chocan normal
+            null, 
+            (enemy) => {
+                return enemy.type !== 'ghost';
             }
         );
     }
 
     static bubbleEnemy(scene) {
-        // 🛠️ Mantenemos su propiedad inyectando el escudo anti-burbujas al inicio
         scene.bubbleEnemyCollider = scene.physics.add.overlap(
             scene.bubbles,
             scene.enemies,
             (bubble, enemy) => {
-                
-                // 🔥 ESCUDO FANTASMA: Si es el ghost, la burbuja estalla y salimos de la función
                 if (enemy.type === 'ghost') {
                     bubble.destroy();
                     return;
@@ -75,7 +68,7 @@ export class CollisionManager {
                     enemy.state !== 'TRAPPED' &&
                     bubble.enemyInside === null
                 ) {
-                    console.log("ENEMIGO ATRAPADO");
+                    console.log("Enemy trapped in bubble!");
                     enemy.changeState('TRAPPED');
                     enemy.trappedBubble = bubble;
                     bubble.enemyInside = enemy;
@@ -89,6 +82,8 @@ export class CollisionManager {
             scene.player,
             scene.bubbles,
             (player, bubble) => {
+                if (player.isSpawning) return; 
+
                 const isHoldingJump = scene.cursors.up.isDown || (player.jumpKey && player.jumpKey.isDown);
 
                 if (player.body.velocity.y > 0 && (bubble.body.touching.up || player.body.blocked.down)) {
@@ -108,6 +103,7 @@ export class CollisionManager {
             }
         );
     }
+
     static bubblePlatform(scene) {
         scene.bubblePlatformCollider = scene.physics.add.collider(
             scene.bubbles,
@@ -125,6 +121,7 @@ export class CollisionManager {
             scene.player,
             scene.fruits,
             (player, fruit) => {
+                if (player.isSpawning) return; 
                 fruit.collect();
             }
         );
@@ -142,6 +139,8 @@ export class CollisionManager {
             scene.player,
             scene.enemies,
             (player, enemy) => {
+                if (player.isSpawning || player.isDead) return;
+
                 if (enemy.state !== 'TRAPPED' && enemy.state !== 'DEAD') {
                     player.die(); 
                 }

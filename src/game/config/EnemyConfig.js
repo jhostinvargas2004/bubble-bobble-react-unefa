@@ -65,20 +65,17 @@ export const EnemyConfig = {
         isFlying: true    
     },
 
-    // 🔥 NUESTRO FANTASMA INCORPORADO CON ÉXITO
     ghost: {
-        idle: 'fly_idle',   
-        angry: 'fly_idle',  
-        speed: 85,          
-        scale: 1.5, 
-        invertFlip: false,
+        idle: 'ghost_idle',
+        angry: 'ghost_idle', 
+        speed: 95,          
+        scale: 1, 
         isFlying: true,     
-        body: {
-            width: 24,       
-            height: 24,      
-            offsetX: 4,      
-            offsetY: 4       
-        },
-        bubbleOffsetY: 0   
+        body: { 
+            width: 32,    
+            height: 32, 
+            offsetX: 18,  
+            offsetY: 14  
+        }
     }
 };

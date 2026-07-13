@@ -1,4 +1,3 @@
-// MapManager.js súper limpio sin código basura
 export class MapManager {
     static create(scene, mapKey) {
         scene.map = scene.make.tilemap({ key: mapKey });

@@ -99,6 +99,15 @@ export class AssetLoader {
             }
         );
 
+        scene.load.spritesheet(
+            'player_spawn',
+            'assets/sprites/player/bubble_24_Pixels.png',
+            {
+                frameWidth: 24,  
+                frameHeight: 24
+            }
+        );
+
         // enemy
         scene.load.spritesheet(
             'rat_idle',
@@ -106,6 +115,15 @@ export class AssetLoader {
             {
                 frameWidth:64,
                 frameHeight:64
+            }
+        );
+
+        scene.load.spritesheet(
+            'ghost', 
+            'assets/Dungeon Ghost-spritesheet.png', 
+            { 
+                frameWidth: 68, 
+                frameHeight: 61
             }
         );
 
