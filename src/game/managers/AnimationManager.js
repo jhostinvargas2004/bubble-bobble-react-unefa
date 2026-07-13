@@ -24,6 +24,13 @@ export class AnimationManager {
         });
 
         scene.anims.create({
+            key: 'death',
+            frames: scene.anims.generateFrameNumbers('player_death'),
+            frameRate: 12,
+            repeat: 0
+        });
+
+        scene.anims.create({
             key: 'bubble_float',
             frames: scene.anims.generateFrameNumbers('bubble', {
                 start: 0,
@@ -63,27 +70,72 @@ export class AnimationManager {
             repeat: -1
         });
 
-        // Giant Fly Idle
 
-scene.anims.create({
+        scene.anims.create({
+            key:'fly_idle',
+            frames: scene.anims.generateFrameNumbers(
+                'fly_idle',
+                {
+                    start:0,
+                    end:3
+                }
+            ),
+            frameRate:8,
+            repeat:-1
+        });
 
-    key:'fly_idle',
+            scene.anims.create({
+                key: 'bee_idle',
+                frames: scene.anims.generateFrameNumbers(
+                    'bee_walk',
+                    {
+                        start: 4, 
+                        end: 7
+                    }
+                ),
+                frameRate: 10, 
+                repeat: -1
+            });
 
-    frames: scene.anims.generateFrameNumbers(
-        'fly_idle',
-        {
-            start:0,
-            end:3
+            scene.anims.create({
+                key: 'bee_angry',
+                frames: scene.anims.generateFrameNumbers(
+                    'bee_attack', 
+                    {
+                        start: 4, 
+                        end: 7
+                    }
+                ),
+                frameRate: 14, 
+                repeat: -1
+            });
+
+            scene.anims.create({
+                key: 'dragonfly_idle',
+                frames: scene.anims.generateFrameNumbers(
+                    'dragonfly',
+                    {
+                        start: 0, 
+                        end: 3
+                    }
+                ),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            scene.anims.create({
+                key: 'dragonfly_angry',
+                frames: scene.anims.generateFrameNumbers(
+                    'dragonfly',
+                    {
+                        start: 21, 
+                        end: 27
+                    }
+                ),
+                frameRate: 14,
+                repeat: -1
+            });
+
+            }
+
         }
-    ),
-
-    frameRate:8,
-
-    repeat:-1
-
-});
-
-    }
-
-
-}

@@ -40,6 +40,15 @@ export class AssetLoader {
             }
         );
 
+        scene.load.spritesheet(
+            'player_death',
+            'assets/sprites/player/ToxicFrogBlueBlue_Explosion.png',
+            {
+                frameWidth: 48,
+                frameHeight: 48
+            }
+        );
+
         // enemy
         scene.load.spritesheet(
             'rat_idle',
@@ -105,14 +114,41 @@ export class AssetLoader {
             'assets/sprites/fruits/red strawberry.png'
         );
 
-scene.load.spritesheet(
-    'fly_idle',
-    'assets/sprites/enemy/Giant Fly Sprite Sheet.png',
-    {
-        frameWidth:32,
-        frameHeight:32
-    }
-);
+        scene.load.spritesheet(
+            'fly_idle',
+            'assets/sprites/enemy/Giant Fly Sprite Sheet.png',
+            {
+                frameWidth:32,
+                frameHeight:32
+            }
+        );
+
+        scene.load.spritesheet(
+            'bee_walk',
+            'assets/sprites/enemy/Bee_Walk.png',
+            {
+                frameWidth: 64,
+                frameHeight: 64
+            }
+        );
+
+        scene.load.spritesheet(
+            'bee_attack',
+            'assets/sprites/enemy/Bee_Attack.png',
+            {
+                frameWidth: 64,
+                frameHeight: 64
+            }
+        );
+
+        scene.load.spritesheet(
+            'dragonfly',
+            'assets/sprites/enemy/Dragonfly Sprite Sheet.png',
+            {
+                frameWidth: 32,
+                frameHeight: 32
+            }
+        );
     }
 
 }

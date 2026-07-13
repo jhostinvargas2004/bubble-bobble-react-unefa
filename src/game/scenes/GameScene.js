@@ -2,10 +2,12 @@ import Phaser from 'phaser';
 import { AnimationManager } from '../managers/AnimationManager';
 import { AssetLoader } from '../managers/AssetLoader';
 import { MapManager } from '../managers/MapManager';
-import { EnemyManager } from '../managers/EnemyManager';
+//import { EnemyManager } from '../managers/EnemyManager';
 import { CollisionManager } from '../managers/CollisionManager';
 import { GroupManager } from '../managers/GroupManager';
+import { LevelManager } from '../managers/LevelManager';
 import { Player } from '../entities/Player';
+
 
 export class GameScene extends Phaser.Scene {
     constructor() {
@@ -18,6 +20,8 @@ export class GameScene extends Phaser.Scene {
         this.bubbles = null;
         this.enemies = null;
         this.fruits = null;
+        this.currentLevel = 1;
+        this.levelTime = 99;
         this.map = null;
         
         // Variables globales del score
@@ -38,7 +42,7 @@ export class GameScene extends Phaser.Scene {
         GroupManager.create(this);
 
         this.createPlayer();
-        EnemyManager.create(this);
+        LevelManager.load(this,1);
         CollisionManager.create(this);
         this.createControls();
 
