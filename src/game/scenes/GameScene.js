@@ -6,6 +6,7 @@ import { CollisionManager } from '../managers/CollisionManager';
 import { GroupManager } from '../managers/GroupManager';
 import { EnemyManager } from '../managers/EnemyManager';
 import { Player } from '../entities/Player';
+import { SpecialBubble } from '../entities/SpecialBubble';
 
 export class GameScene extends Phaser.Scene {
 
@@ -64,6 +65,23 @@ export class GameScene extends Phaser.Scene {
         });
 
         this.startLevelTimer();
+
+        this.comodinTimer = this.time.addEvent({
+            delay: 10000,
+            callback: () => {
+                if (this.isChangingLevel || (this.player && this.player.isDead)) return;
+
+                const spawnX = Phaser.Math.Between(40, this.scale.width - 40);
+                const spawnY = this.scale.height + 20;
+                
+                const types = ['water', 'fire', 'thunder'];
+                const selectedType = Phaser.Math.RND.pick(types);
+
+                const specialBubble = new SpecialBubble(this, spawnX, spawnY, selectedType);
+                this.bubbles.add(specialBubble);
+            },
+            loop: true
+        });
     }
 
     startLevelTimer() {

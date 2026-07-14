@@ -108,6 +108,15 @@ export class AssetLoader {
             }
         );
 
+        scene.load.spritesheet(
+            'special_bubbles',
+            'assets/sprites/bubble/special_bubbles.png',
+            {
+                frameWidth: 12,
+                frameHeight: 12
+            }
+        );
+
         // enemy
         scene.load.spritesheet(
             'rat_idle',
