@@ -1,7 +1,7 @@
 import { GameScene } from './GameScene';
 
 export class Level1 extends GameScene {
-    constructor() { super('Level1', 'mapa', ['bee', 'dragonfly', 'fly', 'rat', 'rat'],100000); }
+    constructor() { super('Level1', 'mapa', ['bee', 'dragonfly', 'fly', 'rat', 'rat'],1000000); }
     nextLevel() { this.scene.start('Level2', { score: this.score }); }
 }
 

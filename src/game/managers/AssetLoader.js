@@ -1,3 +1,4 @@
+import { SoundConfig } from "../config/SoundConfig";
 export class AssetLoader {
 
     static preload(scene) {
@@ -226,6 +227,13 @@ export class AssetLoader {
                 frameHeight: 32
             }
         );
+
+    Object.values(SoundConfig).forEach(sound=>{
+        scene.load.audio(
+            sound.key,
+            sound.path
+            );
+        });
     }
 
 }

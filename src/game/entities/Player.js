@@ -1,5 +1,6 @@
 import { Entity } from './Entity';
 import { Bubble } from './Bubble';
+import { SoundManager } from '../managers/SoundManager';
 
 export class Player extends Entity {
 
@@ -126,6 +127,7 @@ spawnInBubble() {
 
     if (cursors.up.isDown && this.body.blocked.down) {
       this.setVelocityY(this.jumpForce);
+      SoundManager.play(this.scene,"jump");
       if (!this.isAttacking) {
          this.play('hop', true);
       }
@@ -150,7 +152,7 @@ spawnInBubble() {
 
         const bubbleX = this.x + (this.direction * 22);
         const bubbleY = this.y - 8;
-
+        SoundManager.play(this.scene,"bubbleShoot");
         const bubble = new Bubble(this.scene, bubbleX, bubbleY, this.direction);
         this.scene.bubbles.add(bubble);
         bubble.body.allowGravity = false;
@@ -174,6 +176,7 @@ spawnInBubble() {
       this.isDead = true;
 
       console.log("💥 ¡EL JUGADOR HA MUERTO!");
+      SoundManager.play(this.scene,"playerDeath");
       this.body.setVelocity(0, 0);
       this.body.enable = false;
       this.play('death', true);
@@ -181,7 +184,8 @@ spawnInBubble() {
       this.once('animationcomplete-death', () => {
           this.setVisible(false);
           if (this.scene.handlePlayerDeath) {
-              this.scene.handlePlayerDeath();
+            SoundManager.gameOver(this.scene);
+            this.scene.handlePlayerDeath();
           }
       });
     }

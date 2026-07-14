@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { FruitManager } from '../managers/FruitManager';
+import { SoundManager } from '../managers/SoundManager';
 
 export class Bubble extends Phaser.Physics.Arcade.Sprite {
 
@@ -147,6 +148,7 @@ export class Bubble extends Phaser.Physics.Arcade.Sprite {
 
         if (this.explodedByPlayer) {
             console.log("ENEMIGO ELIMINADO");
+            SoundManager.play(this.scene,"enemyDefeat");
             enemy.changeState('DEAD');
 
             if (this.scene.gainPoints) {

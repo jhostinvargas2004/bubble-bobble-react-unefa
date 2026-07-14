@@ -1,4 +1,5 @@
 import { Entity } from './Entity';
+import { SoundManager } from '../managers/SoundManager';
 
 export class Fruit extends Entity {
     constructor(scene, x, y, type) {
@@ -32,7 +33,7 @@ export class Fruit extends Entity {
 
     collect() {
         console.log('FRUTA RECOLECTADA:', this.type, '+', this.points, 'pts');
-        
+        SoundManager.play(this.scene, "collectFood");
         if (this.scene.gainPoints) {
             this.scene.gainPoints(this.points);
         }

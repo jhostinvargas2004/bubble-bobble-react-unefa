@@ -7,12 +7,13 @@ import { GroupManager } from '../managers/GroupManager';
 import { EnemyManager } from '../managers/EnemyManager';
 import { Player } from '../entities/Player';
 import { SpecialBubble } from '../entities/SpecialBubble';
+import { SoundManager } from '../managers/SoundManager';
 
 export class GameScene extends Phaser.Scene {
 
     constructor(key = 'GameScene', mapKey = 'mapa', enemyList = [], levelTime = 30) {
         super({ key: key });
-
+    
         this.mapKey = mapKey;
         this.enemyList = enemyList;
         this.levelTimeLimit = levelTime; 
@@ -47,6 +48,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     create() {
+        this.sound.pauseOnBlur = false;
         MapManager.create(this, this.mapKey);
         AnimationManager.create(this);
         GroupManager.create(this);
@@ -57,7 +59,7 @@ export class GameScene extends Phaser.Scene {
         
         CollisionManager.create(this);
         this.createControls();
-
+        if (!this.game.mainTheme) {SoundManager.startGameMusic(this);}
         this.scoreText = this.add.text(16, 16, 'SCORE: ' + this.score, { 
             fontSize: '20px', 
             fill: '#ffffff',
@@ -158,6 +160,10 @@ export class GameScene extends Phaser.Scene {
                 this.nextLevel(); 
             }
         });
+    }
+
+    handlePlayerDeath(){
+        console.log("GAME OVER");
     }
 
     update() {
